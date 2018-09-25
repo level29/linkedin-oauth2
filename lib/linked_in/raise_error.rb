@@ -7,6 +7,8 @@ module LinkedIn
       if status_code == 403 && response.body =~ /throttle/i
         raise LinkedIn::ThrottleError
       else
+        # TODO better handling of errors
+        puts response.body
         super
       end
     end

@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe LinkedIn::Communications do
+describe LinkedIn::Messages do
   let(:access_token) {"dummy_access_token"}
   let(:api) {LinkedIn::API.new(access_token)}
 

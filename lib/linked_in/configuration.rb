@@ -31,11 +31,11 @@ module LinkedIn
     alias_method :secret_key, :client_secret
 
     def initialize
-      @api = "https://api.linkedin.com"
-      @api_version = "/v1"
-      @site = "https://www.linkedin.com"
-      @token_url = "/uas/oauth2/accessToken"
-      @authorize_url = "/uas/oauth2/authorization"
+      @api = "https://api.linkedin.com".freeze
+      @api_version = "/v2".freeze
+      @site = "https://www.linkedin.com".freeze
+      @token_url = "/uas/oauth2/accessToken".freeze
+      @authorize_url = "/uas/oauth2/authorization".freeze
     end
   end
 end

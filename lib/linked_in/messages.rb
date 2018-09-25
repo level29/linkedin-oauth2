@@ -1,16 +1,15 @@
 module LinkedIn
   # Communications APIs
   #
-  # @see http://developer.linkedin.com/documents/communications
-  class Communications < APIResource
+  # @see https://developer.linkedin.com/docs/guide/v2/communications/messages
+  class Messages < APIResource
 
     # (Create) send a message from the authenticated user to a
     # connection
     #
     # Permissions: w_messages
     #
-    # @see http://developer.linkedin.com/documents/messaging-between-connections-api
-    # @see http://developer.linkedin.com/documents/invitation-api Invitation API
+    # @see https://developer.linkedin.com/docs/guide/v2/communications/messages
     #
     # @example
     #   api.send_message("subject", "body", ["person_1_id", "person_2_id"])
@@ -22,11 +21,11 @@ module LinkedIn
     #  message
     # @return [void]
     def send_message(subject, body, recipient_paths)
-      path = "/people/~/mailbox"
+      path = "/messages"
 
       message = {
-        subject: subject,
-        body: body,
+        author: subject,
+        content: body,
         recipients: {
           values: recipient_paths.map do |profile_path|
             {person: {_path: "/people/#{profile_path}"} }

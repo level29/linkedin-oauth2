@@ -15,6 +15,8 @@ module LinkedIn
 
       # We need to use the FlatParamsEncoder so we can pass multiple of
       # the same param to certain endpoints (like the search API).
+      # TODO - check that this encodes according to
+      # https://developer.linkedin.com/docs/guide/v2/concepts/protocol-version
       self.options.params_encoder = ::Faraday::FlatParamsEncoder
 
       self.response :linkedin_raise_error

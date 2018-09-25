@@ -3,6 +3,8 @@ module LinkedIn
 
     attr_accessor :access_token
 
+    # TODO set bearer token?
+    # Or does it work as is
     def initialize(access_token=nil)
       access_token = parse_access_token(access_token)
       verify_access_token!(access_token)
@@ -15,60 +17,18 @@ module LinkedIn
     end
 
     extend Forwardable # Composition over inheritance
-    def_delegators :@jobs, :job,
-                           :job_bookmarks,
-                           :job_suggestions,
-                           :add_job_bookmark
+    def_delegators :@people, :connections
 
-    def_delegators :@people, :profile,
-                             :skills,
-                             :connections,
-                             :picture_urls,
-                             :new_connections
+    def_delegators :@messages, :send_message
 
-    def_delegators :@search, :search
+    def_delegators :@share_and_social_stream, :add_share,
 
-    def_delegators :@groups, :join_group,
-                             :group_posts,
-                             :group_profile,
-                             :add_group_share,
-                             :group_suggestions,
-                             :group_memberships,
-                             :post_group_discussion
-
-    def_delegators :@companies, :company,
-                                :company_search,
-                                :follow_company,
-                                :company_updates,
-                                :unfollow_company,
-                                :add_company_share,
-                                :company_statistics,
-                                :company_historical_follow_statistics,
-                                :company_historical_status_update_statistics,
-                                :company_updates_likes,
-                                :company_updates_comments
-
-    def_delegators :@communications, :send_message
-
-    def_delegators :@share_and_social_stream, :shares,
-                                              :share,
-                                              :add_share,
-                                              :like_share,
-                                              :share_likes,
-                                              :unlike_share,
-                                              :share_comments,
-                                              :update_comment,
-                                              :network_updates
 
     private ##############################################################
 
     def initialize_endpoints
-      @jobs = LinkedIn::Jobs.new(@connection)
       @people = LinkedIn::People.new(@connection)
-      @search = LinkedIn::Search.new(@connection)
-      @groups = LinkedIn::Groups.new(@connection)
-      @companies = LinkedIn::Companies.new(@connection)
-      @communications = LinkedIn::Communications.new(@connection)
+      @messages = LinkedIn::Messages.new(@connection)
       @share_and_social_stream = LinkedIn::ShareAndSocialStream.new(@connection)
     end
 
@@ -78,8 +38,8 @@ module LinkedIn
     end
 
     def default_headers
-      # https://developer.linkedin.com/documents/api-requests-json
-      return {"x-li-format" => "json"}
+      # https://developer.linkedin.com/docs/guide/v2/concepts/protocol-version
+      return {"X-RestLi-Protocol-Version".freeze => "2.0.0".freeze}
     end
 
     def verify_access_token!(access_token)

@@ -1,28 +1,18 @@
 # LinkedIn OAuth 2.0
-[![Gem Version](https://badge.fury.io/rb/linkedin-oauth2.svg)](http://badge.fury.io/rb/linkedin-oauth2)
-[![Build Status](https://travis-ci.org/emorikawa/linkedin-oauth2.svg?branch=master)](https://travis-ci.org/emorikawa/linkedin-oauth2)
-[![Coverage Status](https://coveralls.io/repos/emorikawa/linkedin-oauth2/badge.png)](https://coveralls.io/r/emorikawa/linkedin-oauth2)
-[![Code Climate](https://codeclimate.com/github/emorikawa/linkedin-oauth2/badges/gpa.svg)](https://codeclimate.com/github/emorikawa/linkedin-oauth2)
-[![Dependency Status](https://gemnasium.com/emorikawa/linkedin-oauth2.svg)](https://gemnasium.com/emorikawa/linkedin-oauth2)
+OAuth 2.0 Ruby wrapper for the [LinkedIn API v2](https://developer.linkedin.com/docs/guide/v2).
 
-OAuth 2.0 Ruby wrapper for the [LinkedIn API](http://developer.linkedin.com).
-
-If you are using OAuth 1.0, see the [hexgnu/linkedin](https://github.com/hexgnu/linkedin)
-
-If you are upgrading from the oauth2-v0.1.0 version of this gem, see the
-[upgrade notes](#upgrading) below.
+This gem has limited functionality, it only contains wrappers for
+* Posting a share
+* Sending a message
+* Retrieving connections
 
 # Installation
 
 In Bundler:
 
 ```ruby
-gem "linkedin-oauth2", "~> 1.0"
+gem "linkedin-oauth2", git: "https://github.com/level29/linkedin-oauth2.git",
 ```
-
-Otherwise:
-
-    [sudo|rvm] gem install linkedin-oauth2
 
 # Usage
 
@@ -36,7 +26,7 @@ Key) and a **Client Secret** (aka Secret Key)
 
 ```ruby
 api = LinkedIn::API.new(access_token)
-me = api.profile
+me = api.connections
 ```
 
 ## Step 1: Register your Application
@@ -145,148 +135,32 @@ Once you have an access token, you can query LinkedIn's API.
 Your access token encodes the permissions you're allowed to have. See Step
 2 and [this LinkedIn document](https://developer.linkedin.com/documents/authentication#granting) for how to change the permissions. See each section's documentation on LinkedIn for more information on what permissions get you access to.
 
-### People
+### Client
 
-See the Profiles of yourself and other users. See the connections of
-yourslef and other users.
-
-See https://developer.linkedin.com/documents/people
+Setup a client connection
 
 ```ruby
 api = LinkedIn::API.new(access_token)
 ```
 
-#### Yourself
+### Connections
+
+Get your first degree connections
+
+See https://developer.linkedin.com/docs/guide/v2/people/connections-api
 
 ```ruby
-me = api.profile
-```
-
-#### Others
-
-```ruby
-evan_morikawa = api.profile("SDmkCxL2ya")
-evan_morikawa = api.profile(id: "SDmkCxL2ya")
-evan_morikawa = api.profile(url: "http://www.linkedin.com/in/evanmorikawa")
+connections = api.connections
 ```
 
 #### Specific Fields
 
-See [available fields here](https://developer.linkedin.com/documents/profile-fields)
+See [available fields here](https://developer.linkedin.com/docs/ref/v2/profile/basic-profile)
 
+<!-- TODO check this actually works? -->
 ```ruby
-my_name = api.profile(fields: ["first-name", "last-name"])
+connections = api.connections(fields: ["firstName", "lastName"])
 my_job_titles = api.profile(fields: ["id", {"positions" => ["title"]}])
-```
-
-#### Multiple People
-
-```ruby
-me_and_others = api.profile(ids: ["self", "SDmkCxL2ya"])
-```
-
-#### Connections
-
-```ruby
-# Takes the same arguments as `LinkedIn::API#profile`
-my_connections = api.connections
-evans_connections = api.connections(id: "SDmkCxL2ya")
-```
-
-#### New Connections
-
-```ruby
-# Takes the same options argument as `LinkedIn::API#connections`
-since = Time.new(2014,1,1)
-my_new_connections = api.connections(since)
-evans_new_connections = api.connections(since, id: "SDmkCxL2ya")
-```
-
-### People Search
-
-Search through People
-
-See https://developer.linkedin.com/documents/people-search-api
-
-```ruby
-api.search
-api.search("Proximate")
-api.search(keywords: "Proximate Olin")
-api.search(keywords: "Proximate Olin", start: 10, count: 20)
-api.search(school_name: "Olin College of Engineering")
-
-api.search(fields: {facets: ["code", {buckets: ["code", "name"]}] },
-                    facets: "location")
-
-# Identify all 1st degree connections living in the San Francisco Bay Area
-# See https://developer.linkedin.com/documents/people-search-api#Facets
-api.search(fields: {facets: ["code", {buckets: ["code", "name", "count"]}]},
-           facets: "location,network",
-           facet: ["location,us:84", "network,F"])
-```
-
-### Groups
-
-Access and interact with LinkedIn Groups
-
-You need the "rw_groups" permission for most group actions
-
-See https://developer.linkedin.com/documents/groups
-
-```ruby
-# My groups
-api.group_suggestions
-api.group_memberships
-
-# Another group
-api.group_profile(id: 12345)
-api.group_posts(id: 12345, count: 10, start: 10)
-
-# Participate
-api.add_group_share(12345, title: "Hi")
-
-api.join_group(12345)
-```
-
-### Companies
-
-Detailed overviews of Company information
-
-See https://developer.linkedin.com/documents/companies
-
-```ruby
-# Company info
-api.company(name: "google")
-api.company(id: 12345)
-api.company_updates(name: "google")
-api.company_statistics(name: "google")
-
-# Info on a particular company update
-api.company_update_comments(1337, name: "google")
-api.company_update_likes(1337, name: "google")
-
-# Follow/unfollow
-api.follow_company(12345)
-api.unfollow_company(12345)
-
-# Need rw_company_admin
-api.add_company_share(12345, content: "Hi")
-```
-
-### Jobs
-
-A search for Jobs on LinkedIn
-
-See https://developer.linkedin.com/documents/jobs
-
-```ruby
-# Find a job
-api.job(id: 12345)
-
-# Your jobs
-api.job_bookmarks
-api.job_suggestions
-api.add_job_bookmark(12345)
 ```
 
 ### Share and Social Stream

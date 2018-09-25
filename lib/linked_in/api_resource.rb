@@ -2,6 +2,8 @@ module LinkedIn
   # The abstract class all API endpoints inherit from. Providers common
   # builder methods across all endpoints.
   #
+  # TODO update these
+  # Or remove.. if we don't want to support this
   # @!macro profile_options
   #   @options opts [String] :id LinkedIn ID to fetch profile for
   #   @options opts [String] :url The profile url
@@ -15,24 +17,26 @@ module LinkedIn
   #   @options opts [String] :"secure-urls" (true) alias to secure option
   #
   # @!macro share_input_fields
+  # TODO images for thumbnail size
+  # - Maximum metadata size: 256k
+  # - Maximum file size: 7680kb
+  # - Minimum image width: 150px
+  # - Minimum image height: 80px
   #   @param [Hash] share content of the share
-  #   @option share [String] :comment
-  #   @option share [String] :content
-  #   @option share [String] :title
-  #   @option share [String] :submitted-url
-  #   @option share [String] :submitted-image-url
-  #   @option share [String] :description
-  #   @option share [String] :visibility
-  #   @option share [String] :code
+  #   @option share [String] :owner The URN of the owner of the share
+  #   @option share [Hash] :text
+  #     * :text (String) The share text
+  #   @option share [String] :subject
+  #   @option share [Hash] :distribution
+  #     * :linkedInDistributionTarget (Hash)
+  #   @option share [Hash] :content
+  #     * :contentEntities [Hash]
+  #       * :entityLocation [String] Url of share content
+  #       * :thumbnails [optional, Hash]
+  #     * :title [String] Title of the content
+  #     * :description [String] Description of the content
   #
-  # @!macro company_path_options
-  #   @param [Hash] options identifies the user profile you want
-  #   @option options [String] :domain company email domain
-  #   @option options [String] :id company ID
-  #   @option options [String] :url
-  #   @option options [String] :name company universal name
-  #   @option options [String] :is_admin list all companies that the
-  #     authenticated is an administrator of
+  #
   class APIResource
 
     def initialize(connection)
@@ -71,6 +75,7 @@ module LinkedIn
       return @connection.path_prefix + path
     end
 
+    # TODO this probably needs to be updated
     def prepare_connection_params(path, options)
       path = prepend_prefix(path)
       path += generate_field_selectors(options)
@@ -83,6 +88,7 @@ module LinkedIn
     end
 
     # Dasherizes the param keys
+    # TODO why is this needed?
     def format_options_for_query(options)
       options.reduce({}) do |list, kv|
         key, value = kv.first.to_s.gsub("_","-"), kv.last
@@ -112,54 +118,6 @@ module LinkedIn
       else
         fields.to_s.gsub("_", "-")
       end
-    end
-
-    def profile_path(options={}, allow_multiple=true)
-      path = "/people"
-
-      id = options.delete(:id)
-      url = options.delete(:url)
-
-      ids = options.delete(:ids)
-      urls = options.delete(:urls)
-
-      if options.delete(:email) then raise deprecated end
-
-      if (id or url)
-        path += single_person_path(id, url)
-      elsif allow_multiple and (ids or urls)
-        path += multiple_people_path(ids, urls)
-      else
-        path += "/~"
-      end
-    end
-
-    def single_person_path(id=nil, url=nil)
-      if id
-        return "/id=#{id}"
-      elsif url
-        return "/url=#{CGI.escape(url)}"
-      else
-        return "/~"
-      end
-    end
-
-    # See syntax here: https://developer.linkedin.com/documents/field-selectors
-    def multiple_people_path(ids=[], urls=[])
-      if ids.nil? then ids = [] end
-      if urls.nil? then urls = [] end
-
-      ids = ids.map do |id|
-        if is_self(id) then "~" else "id=#{id}" end
-      end
-      urls = urls.map do |url|
-        if is_self(url) then "~" else "url=#{CGI.escape(url)}" end
-      end
-      return "::(#{(ids+urls).join(",")})"
-    end
-
-    def is_self(str)
-      str == "self" or str == "~"
     end
   end
 end
